@@ -1,0 +1,50 @@
+# Ambiente virtual
+venv/
+.venv/
+
+# Variáveis sensíveis — NUNCA commitar
+.env
+.env.local
+.env.production
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# Modelos de IA (arquivos pesados)
+*.pt
+*.weights
+*.onnx
+
+# Banco de dados local
+*.db
+*.sqlite3
+
+# Logs
+*.log
+logs/
+
+# Fotos e uploads locais
+uploads/
+media/
+
+# VSCode
+.vscode/
+*.code-workspace
+
+# Mac
+.DS_Store
+Thumbs.db
+
+# Testes e cobertura
+.pytest_cache/
+htmlcov/
+.coverage
+
+# Build
+dist/
+build/
+*.egg-info/

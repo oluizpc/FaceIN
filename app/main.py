@@ -1,12 +1,7 @@
 # app/main.py
 from fastapi import FastAPI
+from app.routes import aluno # Importa as rotas do aluno
 
-app = FastAPI(
-    title="FaceIn",
-    description="Sistema de reconhecimento facial para controle de entrada escolar",
-    version="0.1.0"
-)
+app = FastAPI()
 
-@app.get("/")
-def health_check():
-    return {"status": "ok", "projeto": "FaceIn"}
+app.include_router(aluno.router)

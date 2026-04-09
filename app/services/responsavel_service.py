@@ -1,4 +1,3 @@
-# app/services/responsavel_service.py
 from uuid import UUID
 from datetime import datetime
 from sqlalchemy.orm import Session

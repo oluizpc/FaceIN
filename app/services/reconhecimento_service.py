@@ -1,4 +1,3 @@
-# app/services/reconhecimento_service.py
 import json
 import numpy as np
 from uuid import UUID

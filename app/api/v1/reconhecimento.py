@@ -1,21 +1,22 @@
-# app/api/v1/reconhecimento.py
+from uuid import UUID
+
 import cv2
 import numpy as np
 from fastapi import APIRouter, Depends, File, UploadFile, HTTPException, status
 from sqlalchemy.orm import Session
+from app.services.entrada_service import entrada_service
+
 
 from app.core.database import get_db
 from app.services.reconhecimento_service import reconhecimento_service
 
 router = APIRouter(prefix="/reconhecimento", tags=["Reconhecimento"])
 
-
 @router.post("/identificar")
 async def identificar_frame(
     file: UploadFile = File(...),
     db: Session = Depends(get_db)
 ):
-    # lê o arquivo enviado e converte pra frame
     conteudo = await file.read()
     nparr    = np.frombuffer(conteudo, np.uint8)
     frame    = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
@@ -27,8 +28,21 @@ async def identificar_frame(
         )
 
     resultado = reconhecimento_service.processar_frame(frame, db)
-    return resultado
 
+    # registra entrada automaticamente pra cada identificado
+    for identificado in resultado["identificados"]:
+        entrada = entrada_service.registrar(
+            db       = db,
+            aluno_id  = UUID(identificado["aluno_id"]),
+            confianca= identificado["confianca"]
+        )
+
+        if entrada:
+            resultado["entrada_registrada"] = True
+        else:
+            resultado["entrada_registrada"] = False  # já entrou hoje
+
+    return resultado
 
 @router.post("/cadastrar-face/{aluno_id}")
 async def cadastrar_face(

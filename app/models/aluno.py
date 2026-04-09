@@ -18,3 +18,4 @@ class Aluno(Base):
     atualizado_em = Column(TIMESTAMP, default=func.now(), onupdate=func.now())
 
     responsaveis = relationship("Responsavel", back_populates="aluno")
+    entradas = relationship("Entrada", back_populates="aluno")

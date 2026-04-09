@@ -1,4 +1,3 @@
-# app/main.py
 from fastapi import FastAPI
 from app.api.v1 import alunos, reconhecimento, entradas, responsaveis
 
@@ -11,7 +10,7 @@ app = FastAPI(
 # ── rotas
 app.include_router(alunos.router,        prefix="/api/v1")
 app.include_router(reconhecimento.router, prefix="/api/v1")
-app.include_router(entradas.router,       prefix="/api/v1")
+app.include_router(entradas.router, prefix="/api/v1")
 app.include_router(responsaveis.router, prefix="/api/v1")
 
 

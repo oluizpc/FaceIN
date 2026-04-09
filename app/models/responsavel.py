@@ -1,4 +1,3 @@
-# app/models/responsavel.py
 import uuid
 from sqlalchemy import TIMESTAMP, Boolean, Column, ForeignKey, String, func
 from sqlalchemy.dialects.postgresql import UUID

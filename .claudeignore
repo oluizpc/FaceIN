@@ -1,0 +1,28 @@
+# .claudeignore
+
+# Dependências
+venv/
+
+# Arquivos desnecessários
+.gitignore
+requirements.txt
+*.md
+
+# Modelos de IA (pesados)
+*.pt
+*.onnx
+*.weights
+
+# Banco local
+*.db
+*.sqlite3
+
+# Cache
+__pycache__/
+*.pyc
+
+# Logs
+*.log
+
+# Testes antigos
+app/tests/recognize_realtime.py

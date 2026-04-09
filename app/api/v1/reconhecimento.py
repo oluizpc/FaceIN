@@ -54,7 +54,7 @@ async def cadastrar_face(
             angulo   = angulo,
             db       = db
         )
-        return {"mensagem": "Face cadastrada com sucesso", "idface": str(face.idface)}
+        return {"mensagem": "Face cadastrada com sucesso", "idface": str(face.id)}
 
     except ValueError as e:
         raise HTTPException(

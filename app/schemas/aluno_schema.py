@@ -1,3 +1,4 @@
+# app/schemas/aluno_schema.py
 from pydantic import BaseModel
 from typing import Optional
 from uuid import UUID
@@ -18,7 +19,7 @@ class AlunoUpdate(BaseModel):
 
 
 class AlunoResponse(BaseModel):
-    idaluno: UUID
+    id: UUID
     nome: str
     turma: str
     matricula: Optional[str] = None

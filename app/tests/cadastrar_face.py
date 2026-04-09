@@ -1,7 +1,6 @@
 # app/tests/cadastrar_face.py
 import cv2
 import json
-import numpy as np
 from insightface.app import FaceAnalysis
 from app.core.database import SessionLocal
 from app.models import Face, Aluno
@@ -13,18 +12,35 @@ app_face = FaceAnalysis(
 )
 app_face.prepare(ctx_id=0, det_size=(320, 320))
 
-# ── busca aluno no banco ─────────────────────────────────────────────
+# ── cadastra ou busca aluno no banco ─────────────────────────────────
 db = SessionLocal()
-aluno = db.query(Aluno).first()  # pega o primeiro aluno cadastrado
 
-if not aluno:
-    print("Nenhum aluno cadastrado no banco!")
-    db.close()
-    exit()
+print("\n── Dados do aluno ──")
+nome      = input("Nome: ").strip()
+turma     = input("Turma: ").strip()
+matricula = input("Matrícula: ").strip()
 
-print(f"Cadastrando face para: {aluno.nome}")
+aluno = db.query(Aluno).filter(Aluno.matricula == matricula).first()
+
+if aluno:
+    print(f"Aluno já cadastrado: {aluno.nome} — usando cadastro existente")
+else:
+    aluno = Aluno(
+        nome=nome,
+        turma=turma,
+        matricula=matricula
+    )
+    db.add(aluno)
+    db.commit()
+    db.refresh(aluno)
+    print(f"Aluno criado com sucesso! ID: {aluno.id}")
+
+angulo = input("Ângulo (FRENTE/DIREITA/ESQUERDA/SEM_OCULOS/COM_OCULOS) [FRENTE]: ").strip() or "FRENTE"
+
+print(f"\nCadastrando face para: {aluno.nome} — {angulo}")
 print("Pressione ESPAÇO para capturar | ESC para sair")
 
+# ── câmera ───────────────────────────────────────────────────────────
 video = cv2.VideoCapture(0)
 
 while True:
@@ -44,12 +60,10 @@ while True:
 
     key = cv2.waitKey(1)
 
-    # ESC sai
-    if key == 27:
+    if key == 27:  # ESC
         break
 
-    # ESPACO captura
-    if key == 32:
+    if key == 32:  # ESPAÇO
         if len(rostos) == 0:
             print("Nenhum rosto detectado, tente novamente!")
             continue
@@ -64,12 +78,12 @@ while True:
             aluno_id=aluno.id,
             embedding=json.dumps(embedding),
             foto_url=None,
-            angulo="FRENTE"
+            angulo=angulo
         )
 
         db.add(face)
         db.commit()
-        print(f"Face cadastrada com sucesso! Dimensoes: {len(embedding)}")
+        print(f"Face cadastrada! Aluno: {aluno.nome} | Ângulo: {angulo} | Dimensões: {len(embedding)}")
         break
 
 video.release()

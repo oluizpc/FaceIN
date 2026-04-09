@@ -1,6 +1,7 @@
 # app/services/reconhecimento_service.py
 import json
 import numpy as np
+from uuid import UUID
 from sqlalchemy.orm import Session
 from insightface.app import FaceAnalysis
 
@@ -59,7 +60,7 @@ class ReconhecimentoService:
 
         if melhor_score >= self.threshold:
             aluno = db.query(Aluno).filter(
-                Aluno.idaluno == melhor_aluno,
+                Aluno.id == melhor_aluno,
                 Aluno.ativo == True
             ).first()
             return aluno, melhor_score
@@ -88,7 +89,7 @@ class ReconhecimentoService:
 
             if aluno:
                 identificados.append({
-                    "aluno_id":  str(aluno.idaluno),
+                    "aluno_id":  str(aluno.id),
                     "nome":      aluno.nome,
                     "matricula": aluno.matricula,
                     "confianca": round(confianca, 4),
@@ -103,13 +104,22 @@ class ReconhecimentoService:
         }
 
     # ── cadastrar face ───────────────────────────────────────────────
-    def cadastrar_face(
-        self,
-        frame,
-        aluno_id,
-        angulo: str,
-        db: Session
-    ) -> Face:
+    def cadastrar_face(self, frame, aluno_id, angulo: str, db: Session) -> Face:
+        embedding = self.gerar_embedding(frame)
+
+        if embedding is None:
+            raise ValueError("Nenhum rosto detectado ou mais de um rosto no frame")
+
+        face = Face(
+            aluno_id  = UUID(aluno_id),  # converte string para UUID
+            embedding = json.dumps(embedding.tolist()),
+            angulo    = angulo
+        )
+
+        db.add(face)
+        db.commit()
+        db.refresh(face)
+        return face
 
         embedding = self.gerar_embedding(frame)
 

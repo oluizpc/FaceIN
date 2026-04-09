@@ -14,7 +14,7 @@ class AlunoService:
 
     def buscar_por_id(self, db: Session, aluno_id: UUID) -> Aluno:
         aluno = db.query(Aluno).filter(
-            Aluno.idaluno == aluno_id,
+            Aluno.id == aluno_id,
             Aluno.ativo == True
         ).first()
 

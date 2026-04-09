@@ -19,5 +19,7 @@ class Responsavel(Base):
     notif_email    = Column(Boolean, default=False)
     criado_em      = Column(TIMESTAMP, default=func.now())
     atualizado_em  = Column(TIMESTAMP, default=func.now(), onupdate=func.now())
+    aceite_lgpd    = Column(Boolean, default=False, nullable=False)
+    aceite_lgpd_em = Column(TIMESTAMP, nullable=True)  # quando aceitou
 
     aluno = relationship("Aluno", back_populates="responsaveis")

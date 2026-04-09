@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import Optional
 from uuid import UUID
 from datetime import datetime
@@ -18,12 +18,11 @@ class AlunoUpdate(BaseModel):
 
 
 class AlunoResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: UUID
     nome: str
     turma: str
     matricula: Optional[str] = None
     ativo: bool
     criado_em: datetime
-
-    class Config:
-        from_attributes = True

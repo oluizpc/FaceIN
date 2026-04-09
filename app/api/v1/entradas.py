@@ -1,3 +1,4 @@
+from typing import Optional
 from uuid import UUID
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
@@ -10,7 +11,7 @@ router = APIRouter(prefix="/entradas", tags=["Entradas"])
 
 
 @router.get("/", response_model=list[EntradaResponse])
-def listar_entradas(aluno_id: UUID = None, db: Session = Depends(get_db)):
+def listar_entradas(aluno_id: Optional[UUID] = None, db: Session = Depends(get_db)):
     return entrada_service.listar(db, aluno_id)
 
 

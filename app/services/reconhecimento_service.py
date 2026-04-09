@@ -11,12 +11,18 @@ from app.models.aluno import Aluno
 class ReconhecimentoService:
 
     def __init__(self):
-        self.modelo = FaceAnalysis(
-            name="buffalo_s",
-            providers=["CPUExecutionProvider"]
-        )
-        self.modelo.prepare(ctx_id=0, det_size=(320, 320))
+        self._modelo = None
         self.threshold = 0.5
+
+    @property
+    def modelo(self) -> FaceAnalysis:
+        if self._modelo is None:
+            self._modelo = FaceAnalysis(
+                name="buffalo_s",
+                providers=["CPUExecutionProvider"]
+            )
+            self._modelo.prepare(ctx_id=0, det_size=(320, 320))
+        return self._modelo
 
     # ── embedding ────────────────────────────────────────────────────
     def gerar_embedding(self, frame) -> np.ndarray | None:
@@ -111,22 +117,6 @@ class ReconhecimentoService:
 
         face = Face(
             aluno_id  = UUID(aluno_id),  # converte string para UUID
-            embedding = json.dumps(embedding.tolist()),
-            angulo    = angulo
-        )
-
-        db.add(face)
-        db.commit()
-        db.refresh(face)
-        return face
-
-        embedding = self.gerar_embedding(frame)
-
-        if embedding is None:
-            raise ValueError("Nenhum rosto detectado ou mais de um rosto no frame")
-
-        face = Face(
-            aluno_id  = aluno_id,
             embedding = json.dumps(embedding.tolist()),
             angulo    = angulo
         )

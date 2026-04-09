@@ -1,4 +1,4 @@
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, ConfigDict, model_validator
 from typing import Optional
 from uuid import UUID
 from datetime import datetime
@@ -13,17 +13,13 @@ class ResponsavelCreate(BaseModel):
     notif_email:    bool = False
     aceite_lgpd:    bool = False
 
-    @field_validator("telefone")
-    def telefone_obrigatorio_se_whatsapp(cls, v, values):
-        if values.data.get("notif_whatsapp") and not v:
+    @model_validator(mode="after")
+    def validar_contatos(self):
+        if self.notif_whatsapp and not self.telefone:
             raise ValueError("Telefone obrigatório quando notificação WhatsApp está ativa")
-        return v
-
-    @field_validator("email")
-    def email_obrigatorio_se_notif_email(cls, v, values):
-        if values.data.get("notif_email") and not v:
+        if self.notif_email and not self.email:
             raise ValueError("Email obrigatório quando notificação por email está ativa")
-        return v
+        return self
 
 
 class ResponsavelUpdate(BaseModel):
@@ -36,6 +32,8 @@ class ResponsavelUpdate(BaseModel):
 
 
 class ResponsavelResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id:             UUID
     aluno_id:       UUID
     nome:           str
@@ -47,6 +45,3 @@ class ResponsavelResponse(BaseModel):
     aceite_lgpd:    bool
     aceite_lgpd_em: Optional[datetime] = None
     criado_em:      datetime
-
-    class Config:
-        from_attributes = True

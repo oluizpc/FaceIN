@@ -9,6 +9,8 @@ from app.services.entrada_service import entrada_service
 
 from app.core.database import get_db
 from app.services.reconhecimento_service import reconhecimento_service
+from app.services.responsavel_service import responsavel_service
+from app.services.plugzap_service import plugzap_service
 
 router = APIRouter(prefix="/reconhecimento", tags=["Reconhecimento"])
 
@@ -29,16 +31,28 @@ async def identificar_frame(
 
     resultado = reconhecimento_service.processar_frame(frame, db)
 
-    # registra entrada automaticamente pra cada identificado
+    # registra entrada e notifica responsáveis para cada aluno identificado
     for identificado in resultado["identificados"]:
+        aluno_id = UUID(identificado["aluno_id"])
         entrada = entrada_service.registrar(
-            db       = db,
-            aluno_id  = UUID(identificado["aluno_id"]),
-            confianca= identificado["confianca"]
+            db        = db,
+            aluno_id  = aluno_id,
+            confianca = identificado["confianca"],
         )
 
         if entrada:
             resultado["entrada_registrada"] = True
+
+            # notifica responsáveis via WhatsApp
+            responsaveis = responsavel_service.buscar_para_notificacao(db, aluno_id)
+            for resp in responsaveis:
+                if resp.notif_whatsapp and resp.telefone:
+                    enviado = plugzap_service.notificar_entrada(
+                        nome_aluno=identificado["nome"],
+                        telefone=resp.telefone,
+                    )
+                    if enviado:
+                        entrada_service.marcar_notificado(db, entrada.id)
         else:
             resultado["entrada_registrada"] = False  # já entrou hoje
 

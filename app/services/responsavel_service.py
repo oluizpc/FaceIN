@@ -1,5 +1,5 @@
 from uuid import UUID
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 
@@ -43,7 +43,7 @@ class ResponsavelService:
 
         responsavel = Responsavel(
             aluno_id       = aluno_id,
-            aceite_lgpd_em = datetime.utcnow() if dados.aceite_lgpd else None,
+            aceite_lgpd_em = datetime.now(timezone.utc) if dados.aceite_lgpd else None,
             **dados.model_dump()
         )
 

@@ -3,6 +3,7 @@ import uuid
 from sqlalchemy import TIMESTAMP, Boolean, Column, String, func
 from sqlalchemy.dialects.postgresql import UUID
 from app.core.database import Base
+from sqlalchemy.orm import relationship
 
 
 class Aluno(Base):
@@ -15,3 +16,5 @@ class Aluno(Base):
     ativo = Column(Boolean, default=True)
     criado_em = Column(TIMESTAMP, default=func.now())
     atualizado_em = Column(TIMESTAMP, default=func.now(), onupdate=func.now())
+
+    responsaveis = relationship("Responsavel", back_populates="aluno")

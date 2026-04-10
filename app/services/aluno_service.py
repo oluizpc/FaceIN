@@ -8,8 +8,11 @@ from app.schemas.aluno_schema import AlunoCreate, AlunoUpdate
 
 class AlunoService:
 
-    def listar(self, db: Session) -> list[Aluno]:
-        return db.query(Aluno).filter(Aluno.ativo == True).all()
+    def listar(self, db: Session, escola_id: UUID = None) -> list[Aluno]:
+        query = db.query(Aluno).filter(Aluno.ativo == True)
+        if escola_id:
+            query = query.filter(Aluno.escola_id == escola_id)
+        return query.all()
 
     def buscar_por_id(self, db: Session, aluno_id: UUID) -> Aluno:
         aluno = db.query(Aluno).filter(

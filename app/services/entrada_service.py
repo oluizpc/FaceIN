@@ -9,20 +9,26 @@ from app.models.aluno import Aluno
 
 class EntradaService:
 
-    def listar(self, db: Session, aluno_id: UUID = None) -> list[Entrada]:
+    def listar(self, db: Session, aluno_id: UUID = None, escola_id: UUID = None) -> list[Entrada]:
         query = db.query(Entrada)
 
         if aluno_id:
             query = query.filter(Entrada.aluno_id == aluno_id)
 
+        if escola_id:
+            query = query.join(Aluno).filter(Aluno.escola_id == escola_id)
+
         return query.order_by(Entrada.registrado_em.desc()).all()
 
-    def listar_hoje(self, db: Session) -> list[Entrada]:
+    def listar_hoje(self, db: Session, escola_id: UUID = None) -> list[Entrada]:
         hoje = date.today()
-        return db.query(Entrada).filter(
+        query = db.query(Entrada).filter(
             Entrada.registrado_em >= datetime.combine(hoje, datetime.min.time()),
             Entrada.registrado_em <= datetime.combine(hoje, datetime.max.time())
-        ).order_by(Entrada.registrado_em.desc()).all()
+        )
+        if escola_id:
+            query = query.join(Aluno).filter(Aluno.escola_id == escola_id)
+        return query.order_by(Entrada.registrado_em.desc()).all()
 
     def buscar_por_id(self, db: Session, entrada_id: UUID) -> Entrada:
         entrada = db.query(Entrada).filter(Entrada.id == entrada_id).first()

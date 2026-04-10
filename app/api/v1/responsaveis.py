@@ -5,8 +5,9 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.schemas.responsavel_schema import ResponsavelCreate, ResponsavelUpdate, ResponsavelResponse
 from app.services.responsavel_service import responsavel_service
+from app.dependencies.auth import get_current_user
 
-router = APIRouter(prefix="/responsaveis", tags=["Responsáveis"])
+router = APIRouter(prefix="/responsaveis", tags=["Responsáveis"], dependencies=[Depends(get_current_user)])
 
 
 @router.get("/aluno/{aluno_id}", response_model=list[ResponsavelResponse])

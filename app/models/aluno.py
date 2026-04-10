@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import TIMESTAMP, Boolean, Column, String, func
+from sqlalchemy import TIMESTAMP, Boolean, Column, ForeignKey, String, func
 from sqlalchemy.dialects.postgresql import UUID
 from app.core.database import Base
 from sqlalchemy.orm import relationship
@@ -10,6 +10,7 @@ class Aluno(Base):
     __tablename__ = "alunos"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    escola_id = Column(UUID(as_uuid=True), ForeignKey("escolas.id"), nullable=True)
     nome = Column(String(200), nullable=False)
     turma = Column(String(20), nullable=False)
     matricula = Column(String(50), unique=True)
@@ -17,5 +18,6 @@ class Aluno(Base):
     criado_em = Column(TIMESTAMP, default=func.now())
     atualizado_em = Column(TIMESTAMP, default=func.now(), onupdate=func.now())
 
+    escola = relationship("Escola", back_populates="alunos")
     responsaveis = relationship("Responsavel", back_populates="aluno")
     entradas = relationship("Entrada", back_populates="aluno")

@@ -1,6 +1,8 @@
 import warnings
 from fastapi import FastAPI
-from app.api.v1 import alunos, entradas, responsaveis
+from app.api.v1 import alunos, entradas, responsaveis, escolas, auth
+from app.core.database import engine, Base
+import app.models  # garante que todos os models são registrados no Base
 
 # reconhecimento importado separadamente para isolar falha de carregamento do InsightFace
 try:
@@ -9,6 +11,8 @@ except Exception as exc:
     warnings.warn(f"[FaceIn] Módulo de reconhecimento não carregado: {exc}")
     _reconhecimento_mod = None
 
+Base.metadata.create_all(bind=engine)
+
 app = FastAPI(
     title="FaceIn",
     description="Sistema de reconhecimento facial para controle de entrada escolar",
@@ -16,6 +20,8 @@ app = FastAPI(
 )
 
 # ── rotas
+app.include_router(auth.router,         prefix="/api/v1")
+app.include_router(escolas.router,      prefix="/api/v1")
 app.include_router(alunos.router,       prefix="/api/v1")
 app.include_router(entradas.router,     prefix="/api/v1")
 app.include_router(responsaveis.router, prefix="/api/v1")

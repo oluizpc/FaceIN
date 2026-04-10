@@ -1,19 +1,22 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { listarAlunos, criarAluno, desativarAluno } from '../api/alunos'
+import { listarEscolas } from '../api/escolas'
 
-const vazio = { nome: '', turma: '', matricula: '' }
+const vazio = { nome: '', turma: '', matricula: '', escola_id: '' }
 
 export default function Alunos() {
-  const [alunos, setAlunos]     = useState([])
-  const [form, setForm]         = useState(vazio)
-  const [mostrarForm, setMostrarForm] = useState(false)
-  const [erro, setErro]         = useState('')
+  const [alunos, setAlunos]               = useState([])
+  const [escolas, setEscolas]             = useState([])
+  const [form, setForm]                   = useState(vazio)
+  const [mostrarForm, setMostrarForm]     = useState(false)
+  const [erro, setErro]                   = useState('')
   const navigate = useNavigate()
 
   async function carregar() {
-    const { data } = await listarAlunos()
-    setAlunos(data)
+    const [resAlunos, resEscolas] = await Promise.all([listarAlunos(), listarEscolas()])
+    setAlunos(resAlunos.data)
+    setEscolas(resEscolas.data)
   }
 
   useEffect(() => { carregar() }, [])
@@ -53,10 +56,24 @@ export default function Alunos() {
         <form onSubmit={salvar} className="bg-white rounded-xl border border-gray-200 p-6 mb-6 space-y-4">
           <h2 className="font-semibold text-gray-700">Cadastrar aluno</h2>
           {erro && <p className="text-red-500 text-sm">{erro}</p>}
-          <div className="grid grid-cols-3 gap-4">
-            {[['nome','Nome completo'],['turma','Turma'],['matricula','Matrícula']].map(([k,label]) => (
+          <div className="grid grid-cols-2 gap-4">
+            <div className="col-span-2">
+              <label className="text-xs text-gray-500 mb-1 block">Escola *</label>
+              <select
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                value={form.escola_id}
+                onChange={e => setForm(f => ({ ...f, escola_id: e.target.value }))}
+                required
+              >
+                <option value="">Selecione uma escola...</option>
+                {escolas.map(es => (
+                  <option key={es.id} value={es.id}>{es.nome}</option>
+                ))}
+              </select>
+            </div>
+            {[['nome', 'Nome completo'], ['turma', 'Turma'], ['matricula', 'Matrícula']].map(([k, label]) => (
               <div key={k}>
-                <label className="text-xs text-gray-500 mb-1 block">{label}</label>
+                <label className="text-xs text-gray-500 mb-1 block">{label} *</label>
                 <input
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
                   value={form[k]}
@@ -81,7 +98,10 @@ export default function Alunos() {
           <div key={a.id} className="flex items-center justify-between px-6 py-4">
             <div>
               <p className="font-medium text-gray-800">{a.nome}</p>
-              <p className="text-xs text-gray-400">{a.turma} · {a.matricula}</p>
+              <p className="text-xs text-gray-400">
+                {a.escola?.nome && <span className="text-indigo-400 font-medium">{a.escola.nome} · </span>}
+                {a.turma} · {a.matricula}
+              </p>
             </div>
             <div className="flex gap-3">
               <button

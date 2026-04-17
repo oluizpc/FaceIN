@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "WebFetch(domain:developer.plugzapi.com.br)"
+      "WebFetch(domain:developer.plugzapi.com.br)",
+      "Bash(npm run *)"
     ]
   }
 }

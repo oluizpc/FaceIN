@@ -11,6 +11,7 @@ FaceIN é um sistema de controle de entrada escolar por reconhecimento facial, d
 - **Reconhecimento facial**: InsightFace modelo `buffalo_s`, embeddings 512D, similaridade cosseno
 - **WhatsApp**: PlugZap API (`api.plugzapi.com.br`) com `Client-Token` no header
 - **Frontend**: React + Vite + Tailwind CSS v4 (`@tailwindcss/vite`)
+- **Fontes**: Syne (títulos) + DM Sans (corpo) + JetBrains Mono (dados/timestamps) — via Google Fonts
 - **Testes**: pytest, SQLite in-memory + StaticPool
 - **Python**: 3.14 (venv em `venv/`) — **não usar `venv311/` para o backend**
 
@@ -32,8 +33,8 @@ FaceIN/
 ├── frontend/
 │   ├── src/
 │   │   ├── api/         # client.js (axios + interceptor JWT), alunos.js, escolas.js, auth.js
-│   │   ├── context/     # AuthContext.jsx (login, logout, usuario, autenticado)
-│   │   ├── components/  # Navbar.jsx, Icons.jsx (SVG inline)
+│   │   ├── context/     # AuthContext.jsx (auth), ThemeContext.jsx (dark/light + localStorage)
+│   │   ├── components/  # Navbar.jsx (inclui botão toggle de tema), Icons.jsx (SVG inline)
 │   │   └── pages/       # Login, Escolas, Alunos, AlunoDetalhes, Painel, Usuarios
 │   └── vite.config.js   # proxy /api → localhost:8000
 ├── tests/               # pytest, SQLite in-memory
@@ -111,6 +112,52 @@ Solução: `CryptContext(schemes=["sha256_crypt"])` em `app/core/security.py`.
 ### Icons sem lucide-react
 `lucide-react` causava conflito de versão do React. Solução: usar `frontend/src/components/Icons.jsx` com SVGs inline.
 
+### Design system do frontend
+O frontend usa um sistema de design próprio baseado em variáveis CSS, sem depender de classes Tailwind para estilo visual. Regras:
+
+- **Nunca usar classes Tailwind para cores, espaçamento ou tipografia** nas páginas — usar `style={{}}` inline com as variáveis CSS.
+- Tailwind é usado apenas para utilitários estruturais quando necessário (ex: `fade-up`, `fi-input`).
+- Todas as cores vêm de variáveis CSS definidas em `frontend/src/index.css` (ex: `var(--accent)`, `var(--bg-surface)`).
+- As variáveis mudam automaticamente com o tema — **nunca hardcodar cores** como `#fff` ou `#000` diretamente nos componentes (exceto preto `#000` no texto sobre botões de accent).
+
+### Temas dark/light
+- Controlados por `ThemeContext.jsx` via atributo `data-theme` no `<html>`.
+- Persistido em `localStorage` com chave `facein-theme`.
+- `[data-theme="dark"]` é o padrão. Variáveis sobrescritas em `[data-theme="light"]` no `index.css`.
+- O botão toggle fica no `Navbar` (ícone sol/lua).
+
+### Variáveis CSS disponíveis
+
+| Variável | Uso |
+|---|---|
+| `--bg-base` | Fundo da página |
+| `--bg-surface` | Cards, navbar, painéis |
+| `--bg-elevated` | Elementos dentro de cards |
+| `--border` | Bordas padrão |
+| `--border-bright` | Bordas de destaque/foco |
+| `--accent` | Cor principal (cyan) |
+| `--accent-dim` | Accent mais escuro (hover/disabled) |
+| `--accent-glow` | Sombra/glow do accent (rgba) |
+| `--success` | Verde para entradas/confirmações |
+| `--warning` | Âmbar para alertas |
+| `--danger` | Vermelho para erros/destruição |
+| `--text-primary` | Texto principal |
+| `--text-secondary` | Texto secundário/labels |
+| `--text-muted` | Texto desabilitado/placeholders |
+
+### Classes CSS customizadas (index.css)
+- `.fi-input` — estilo padrão para todos os `<input>` e `<select>` do sistema
+- `.fade-up` — animação de entrada (translateY + opacity)
+- `.scan-line` — barra de varredura animada no Painel (câmera ativa)
+- `.camera-active-border` — borda pulsante na câmera ativa
+- `.status-dot` — indicador piscante de status
+- `.entry-card-anim` — slide da direita para entradas no log
+
+### Tipografia
+- `Syne` — títulos de página (`fontFamily: 'Syne, sans-serif'`), botões de ação primária
+- `DM Sans` — corpo de texto geral (padrão do `body`)
+- `JetBrains Mono` — dados técnicos: timestamps, matrículas, porcentagens de confiança, IDs
+
 ### InsightFace lazy-loaded
 O modelo InsightFace é carregado sob demanda via `@property` em `reconhecimento_service.py`. Evita falha na importação quebrando todos os routers.
 
@@ -136,4 +183,6 @@ Importado dentro de `try/except` para que falhas (ex: InsightFace não instalado
 
 ## Contexto acadêmico
 
-Projeto de TCC/apresentação para banca. O frontend deve ter aparência profissional e moderna. Público: professores avaliadores e futuros clientes (escolas).
+Projeto de TCC/apresentação para banca. O frontend tem estética **"Biometric Control Terminal"** — dark navy + cyan elétrico, visual de sistema de segurança profissional. Público: professores avaliadores e futuros clientes (escolas).
+
+Ao adicionar novas páginas ou componentes, seguir o mesmo padrão visual: `style={{}}` inline com variáveis CSS, fontes Syne/DM Sans/JetBrains Mono, sem classes Tailwind para cor ou tipografia.

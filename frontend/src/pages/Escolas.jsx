@@ -4,10 +4,10 @@ import { listarEscolas, criarEscola, desativarEscola } from '../api/escolas'
 const vazio = { nome: '', cnpj: '', endereco: '', telefone: '' }
 
 export default function Escolas() {
-  const [escolas, setEscolas]             = useState([])
-  const [form, setForm]                   = useState(vazio)
-  const [mostrarForm, setMostrarForm]     = useState(false)
-  const [erro, setErro]                   = useState('')
+  const [escolas, setEscolas]         = useState([])
+  const [form, setForm]               = useState(vazio)
+  const [mostrarForm, setMostrarForm] = useState(false)
+  const [erro, setErro]               = useState('')
 
   async function carregar() {
     const { data } = await listarEscolas()
@@ -36,78 +36,182 @@ export default function Escolas() {
   }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Escolas</h1>
+    <div style={{ padding: '32px 28px', maxWidth: '960px', margin: '0 auto' }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '28px' }}>
+        <div>
+          <h1 style={{
+            fontFamily: 'Syne, sans-serif', fontWeight: 700,
+            fontSize: '24px', margin: 0, letterSpacing: '-0.5px',
+          }}>
+            Escolas
+          </h1>
+          <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: '5px 0 0' }}>
+            {escolas.length} escola{escolas.length !== 1 ? 's' : ''} cadastrada{escolas.length !== 1 ? 's' : ''}
+          </p>
+        </div>
         <button
           onClick={() => setMostrarForm(v => !v)}
-          className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700"
+          style={{
+            background:   mostrarForm ? 'transparent' : 'var(--accent)',
+            color:        mostrarForm ? 'var(--text-secondary)' : '#000',
+            border:       mostrarForm ? '1px solid var(--border-bright)' : 'none',
+            padding:      '10px 22px',
+            borderRadius: '8px',
+            fontSize:     '14px',
+            fontWeight:   600,
+            cursor:       'pointer',
+            transition:   'all 0.2s',
+            flexShrink:   0,
+          }}
         >
-          + Nova escola
+          {mostrarForm ? 'Cancelar' : '+ Nova escola'}
         </button>
       </div>
 
+      {/* Form */}
       {mostrarForm && (
-        <form onSubmit={salvar} className="bg-white rounded-xl border border-gray-200 p-6 mb-6 space-y-4">
-          <h2 className="font-semibold text-gray-700">Cadastrar escola</h2>
-          {erro && <p className="text-red-500 text-sm">{erro}</p>}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-xs text-gray-500 mb-1 block">Nome *</label>
-              <input
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                value={form.nome}
-                onChange={e => setForm(f => ({ ...f, nome: e.target.value }))}
-                required
-              />
+        <div className="fade-up" style={{
+          background:   'var(--bg-surface)',
+          border:       '1px solid var(--border-bright)',
+          borderRadius: '12px',
+          padding:      '26px',
+          marginBottom: '24px',
+        }}>
+          <h2 style={{
+            fontFamily: 'Syne, sans-serif', fontSize: '15px',
+            fontWeight: 600, margin: '0 0 20px', color: 'var(--text-primary)',
+          }}>
+            Cadastrar escola
+          </h2>
+          {erro && (
+            <div style={{
+              background: 'rgba(244,63,94,0.08)', border: '1px solid rgba(244,63,94,0.25)',
+              borderRadius: '8px', padding: '10px 14px', marginBottom: '18px',
+              fontSize: '13px', color: 'var(--danger)',
+            }}>{erro}</div>
+          )}
+          <form onSubmit={salvar}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
+              {[
+                ['nome',     'Nome',     true ],
+                ['telefone', 'Telefone', false],
+                ['cnpj',     'CNPJ',     false],
+                ['endereco', 'Endereço', false],
+              ].map(([k, label, req]) => (
+                <div key={k}>
+                  <label style={{
+                    display: 'block', fontSize: '12px',
+                    color: 'var(--text-secondary)', marginBottom: '7px', fontWeight: 500,
+                  }}>
+                    {label}{req ? ' *' : ''}
+                  </label>
+                  <input
+                    className="fi-input"
+                    value={form[k]}
+                    onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))}
+                    required={req}
+                  />
+                </div>
+              ))}
             </div>
-            <div>
-              <label className="text-xs text-gray-500 mb-1 block">Telefone</label>
-              <input
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                value={form.telefone}
-                onChange={e => setForm(f => ({ ...f, telefone: e.target.value }))}
-              />
-            </div>
-            <div>
-              <label className="text-xs text-gray-500 mb-1 block">CNPJ</label>
-              <input
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                value={form.cnpj}
-                onChange={e => setForm(f => ({ ...f, cnpj: e.target.value }))}
-              />
-            </div>
-            <div>
-              <label className="text-xs text-gray-500 mb-1 block">Endereço</label>
-              <input
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                value={form.endereco}
-                onChange={e => setForm(f => ({ ...f, endereco: e.target.value }))}
-              />
-            </div>
-          </div>
-          <div className="flex gap-3">
-            <button type="submit" className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-indigo-700">Salvar</button>
-            <button type="button" onClick={() => setMostrarForm(false)} className="text-sm text-gray-500 hover:text-gray-700">Cancelar</button>
-          </div>
-        </form>
+            <button type="submit" style={{
+              background: 'var(--accent)', color: '#000', border: 'none',
+              padding: '10px 26px', borderRadius: '8px',
+              fontSize: '14px', fontWeight: 600, cursor: 'pointer',
+            }}>
+              Salvar
+            </button>
+          </form>
+        </div>
       )}
 
-      <div className="bg-white rounded-xl border border-gray-200 divide-y divide-gray-100">
+      {/* Grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(270px, 1fr))', gap: '16px' }}>
         {escolas.length === 0 && (
-          <p className="text-center text-gray-400 py-12 text-sm">Nenhuma escola cadastrada.</p>
+          <div style={{
+            gridColumn: '1 / -1', textAlign: 'center',
+            padding: '72px 0', color: 'var(--text-muted)', fontSize: '14px',
+          }}>
+            Nenhuma escola cadastrada.
+          </div>
         )}
         {escolas.map(e => (
-          <div key={e.id} className="flex items-center justify-between px-6 py-4">
-            <div>
-              <p className="font-medium text-gray-800">{e.nome}</p>
-              <p className="text-xs text-gray-400">
-                {[e.cnpj, e.telefone, e.endereco].filter(Boolean).join(' · ') || 'Sem informações adicionais'}
-              </p>
+          <div
+            key={e.id}
+            className="fade-up"
+            style={{
+              background:   'var(--bg-surface)',
+              border:       '1px solid var(--border)',
+              borderRadius: '12px',
+              padding:      '22px',
+              position:     'relative',
+              overflow:     'hidden',
+              transition:   'border-color 0.2s, transform 0.2s',
+              cursor:       'default',
+            }}
+            onMouseEnter={ev => {
+              ev.currentTarget.style.borderColor = 'var(--border-bright)'
+              ev.currentTarget.style.transform = 'translateY(-2px)'
+            }}
+            onMouseLeave={ev => {
+              ev.currentTarget.style.borderColor = 'var(--border)'
+              ev.currentTarget.style.transform = 'translateY(0)'
+            }}
+          >
+            {/* Top accent line */}
+            <div style={{
+              position:   'absolute', top: 0, left: 0, right: 0, height: '2px',
+              background: 'linear-gradient(90deg, var(--accent) 0%, transparent 70%)',
+            }} />
+
+            {/* Icon */}
+            <div style={{
+              width:          '42px', height: '42px',
+              background:     'rgba(0, 200, 240, 0.07)',
+              border:         '1px solid rgba(0, 200, 240, 0.14)',
+              borderRadius:   '10px',
+              display:        'flex',
+              alignItems:     'center',
+              justifyContent: 'center',
+              marginBottom:   '14px',
+            }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M3 21h18" stroke="var(--accent)" strokeWidth="1.6" strokeLinecap="round"/>
+                <path d="M12 3L3 9h18L12 3z" stroke="var(--accent)" strokeWidth="1.6" strokeLinejoin="round"/>
+                <rect x="9" y="13" width="6" height="8" rx="1" stroke="var(--accent)" strokeWidth="1.6"/>
+              </svg>
             </div>
+
+            <div style={{
+              fontFamily: 'Syne, sans-serif', fontWeight: 600,
+              fontSize: '16px', marginBottom: '6px', color: 'var(--text-primary)',
+            }}>
+              {e.nome}
+            </div>
+            <div style={{
+              fontSize: '12px', color: 'var(--text-muted)',
+              fontFamily: 'JetBrains Mono, monospace',
+              marginBottom: '18px', lineHeight: 1.6,
+            }}>
+              {[e.cnpj, e.telefone, e.endereco].filter(Boolean).join(' · ') || 'Sem informações adicionais'}
+            </div>
+
             <button
               onClick={() => remover(e.id)}
-              className="text-sm text-red-400 hover:text-red-600"
+              style={{
+                background:   'transparent',
+                color:        'var(--text-muted)',
+                border:       '1px solid var(--border)',
+                padding:      '6px',
+                borderRadius: '7px',
+                fontSize:     '12px',
+                cursor:       'pointer',
+                width:        '100%',
+                transition:   'all 0.2s',
+              }}
+              onMouseEnter={ev => { ev.currentTarget.style.borderColor = 'rgba(244,63,94,0.4)'; ev.currentTarget.style.color = 'var(--danger)'; }}
+              onMouseLeave={ev => { ev.currentTarget.style.borderColor = 'var(--border)'; ev.currentTarget.style.color = 'var(--text-muted)'; }}
             >
               Desativar
             </button>

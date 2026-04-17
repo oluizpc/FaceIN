@@ -6,11 +6,11 @@ import { listarEscolas } from '../api/escolas'
 const vazio = { nome: '', turma: '', matricula: '', escola_id: '' }
 
 export default function Alunos() {
-  const [alunos, setAlunos]               = useState([])
-  const [escolas, setEscolas]             = useState([])
-  const [form, setForm]                   = useState(vazio)
-  const [mostrarForm, setMostrarForm]     = useState(false)
-  const [erro, setErro]                   = useState('')
+  const [alunos, setAlunos]           = useState([])
+  const [escolas, setEscolas]         = useState([])
+  const [form, setForm]               = useState(vazio)
+  const [mostrarForm, setMostrarForm] = useState(false)
+  const [erro, setErro]               = useState('')
   const navigate = useNavigate()
 
   async function carregar() {
@@ -41,84 +41,192 @@ export default function Alunos() {
   }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Alunos</h1>
+    <div style={{ padding: '32px 28px', maxWidth: '920px', margin: '0 auto' }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '28px' }}>
+        <div>
+          <h1 style={{
+            fontFamily: 'Syne, sans-serif', fontWeight: 700,
+            fontSize: '24px', margin: 0, letterSpacing: '-0.5px',
+          }}>
+            Alunos
+          </h1>
+          <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: '5px 0 0' }}>
+            {alunos.length} aluno{alunos.length !== 1 ? 's' : ''} cadastrado{alunos.length !== 1 ? 's' : ''}
+          </p>
+        </div>
         <button
           onClick={() => setMostrarForm(v => !v)}
-          className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700"
+          style={{
+            background:   mostrarForm ? 'transparent' : 'var(--accent)',
+            color:        mostrarForm ? 'var(--text-secondary)' : '#000',
+            border:       mostrarForm ? '1px solid var(--border-bright)' : 'none',
+            padding:      '10px 22px',
+            borderRadius: '8px',
+            fontSize:     '14px',
+            fontWeight:   600,
+            cursor:       'pointer',
+            transition:   'all 0.2s',
+            flexShrink:   0,
+          }}
         >
-          + Novo aluno
+          {mostrarForm ? 'Cancelar' : '+ Novo aluno'}
         </button>
       </div>
 
+      {/* Form */}
       {mostrarForm && (
-        <form onSubmit={salvar} className="bg-white rounded-xl border border-gray-200 p-6 mb-6 space-y-4">
-          <h2 className="font-semibold text-gray-700">Cadastrar aluno</h2>
-          {erro && <p className="text-red-500 text-sm">{erro}</p>}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="col-span-2">
-              <label className="text-xs text-gray-500 mb-1 block">Escola *</label>
-              <select
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                value={form.escola_id}
-                onChange={e => setForm(f => ({ ...f, escola_id: e.target.value }))}
-                required
-              >
-                <option value="">Selecione uma escola...</option>
-                {escolas.map(es => (
-                  <option key={es.id} value={es.id}>{es.nome}</option>
-                ))}
-              </select>
-            </div>
-            {[['nome', 'Nome completo'], ['turma', 'Turma'], ['matricula', 'Matrícula']].map(([k, label]) => (
-              <div key={k}>
-                <label className="text-xs text-gray-500 mb-1 block">{label} *</label>
-                <input
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                  value={form[k]}
-                  onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))}
+        <div className="fade-up" style={{
+          background:   'var(--bg-surface)',
+          border:       '1px solid var(--border-bright)',
+          borderRadius: '12px',
+          padding:      '26px',
+          marginBottom: '20px',
+        }}>
+          <h2 style={{
+            fontFamily: 'Syne, sans-serif', fontSize: '15px',
+            fontWeight: 600, margin: '0 0 20px', color: 'var(--text-primary)',
+          }}>
+            Cadastrar aluno
+          </h2>
+          {erro && (
+            <div style={{
+              background: 'rgba(244,63,94,0.08)', border: '1px solid rgba(244,63,94,0.25)',
+              borderRadius: '8px', padding: '10px 14px', marginBottom: '18px',
+              fontSize: '13px', color: 'var(--danger)',
+            }}>{erro}</div>
+          )}
+          <form onSubmit={salvar}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
+              <div style={{ gridColumn: '1 / -1' }}>
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '7px', fontWeight: 500 }}>Escola *</label>
+                <select
+                  className="fi-input"
+                  value={form.escola_id}
+                  onChange={e => setForm(f => ({ ...f, escola_id: e.target.value }))}
                   required
-                />
+                >
+                  <option value="">Selecione uma escola...</option>
+                  {escolas.map(es => <option key={es.id} value={es.id}>{es.nome}</option>)}
+                </select>
               </div>
-            ))}
-          </div>
-          <div className="flex gap-3">
-            <button type="submit" className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-indigo-700">Salvar</button>
-            <button type="button" onClick={() => setMostrarForm(false)} className="text-sm text-gray-500 hover:text-gray-700">Cancelar</button>
-          </div>
-        </form>
+              {[['nome', 'Nome completo'], ['turma', 'Turma'], ['matricula', 'Matrícula']].map(([k, label]) => (
+                <div key={k}>
+                  <label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '7px', fontWeight: 500 }}>
+                    {label} *
+                  </label>
+                  <input
+                    className="fi-input"
+                    value={form[k]}
+                    onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))}
+                    required
+                  />
+                </div>
+              ))}
+            </div>
+            <button type="submit" style={{
+              background: 'var(--accent)', color: '#000', border: 'none',
+              padding: '10px 26px', borderRadius: '8px',
+              fontSize: '14px', fontWeight: 600, cursor: 'pointer',
+            }}>
+              Salvar
+            </button>
+          </form>
+        </div>
       )}
 
-      <div className="bg-white rounded-xl border border-gray-200 divide-y divide-gray-100">
-        {alunos.length === 0 && (
-          <p className="text-center text-gray-400 py-12 text-sm">Nenhum aluno cadastrado.</p>
-        )}
-        {alunos.map(a => (
-          <div key={a.id} className="flex items-center justify-between px-6 py-4">
-            <div>
-              <p className="font-medium text-gray-800">{a.nome}</p>
-              <p className="text-xs text-gray-400">
-                {a.escola?.nome && <span className="text-indigo-400 font-medium">{a.escola.nome} · </span>}
-                {a.turma} · {a.matricula}
-              </p>
-            </div>
-            <div className="flex gap-3">
-              <button
-                onClick={() => navigate(`/alunos/${a.id}`)}
-                className="text-sm text-indigo-600 hover:underline"
-              >
-                Detalhes
-              </button>
-              <button
-                onClick={() => remover(a.id)}
-                className="text-sm text-red-400 hover:text-red-600"
-              >
-                Desativar
-              </button>
-            </div>
+      {/* List */}
+      <div style={{
+        background: 'var(--bg-surface)',
+        border:     '1px solid var(--border)',
+        borderRadius: '12px',
+        overflow:   'hidden',
+      }}>
+        {alunos.length === 0 ? (
+          <div style={{
+            textAlign: 'center', padding: '72px 0',
+            color: 'var(--text-muted)', fontSize: '14px',
+          }}>
+            Nenhum aluno cadastrado.
           </div>
-        ))}
+        ) : (
+          alunos.map((a, i) => (
+            <div
+              key={a.id}
+              style={{
+                display:      'flex',
+                alignItems:   'center',
+                justifyContent: 'space-between',
+                padding:      '15px 22px',
+                borderBottom: i < alunos.length - 1 ? '1px solid var(--border)' : 'none',
+                transition:   'background 0.15s',
+                cursor:       'default',
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-elevated)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                <div style={{
+                  width:          '36px', height: '36px',
+                  background:     'rgba(0, 200, 240, 0.08)',
+                  border:         '1px solid rgba(0, 200, 240, 0.18)',
+                  borderRadius:   '50%',
+                  display:        'flex',
+                  alignItems:     'center',
+                  justifyContent: 'center',
+                  fontSize:       '14px', fontWeight: 700,
+                  color:          'var(--accent)',
+                  flexShrink:     0,
+                }}>
+                  {a.nome.charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: '14px', color: 'var(--text-primary)' }}>{a.nome}</div>
+                  <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>
+                    {a.escola?.nome && (
+                      <span style={{ color: 'var(--accent)', fontWeight: 500 }}>{a.escola.nome} · </span>
+                    )}
+                    <span style={{ fontFamily: 'JetBrains Mono, monospace' }}>{a.turma} · {a.matricula}</span>
+                  </div>
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
+                <button
+                  onClick={() => navigate(`/alunos/${a.id}`)}
+                  style={{
+                    background:   'rgba(0, 200, 240, 0.07)',
+                    color:        'var(--accent)',
+                    border:       '1px solid rgba(0, 200, 240, 0.2)',
+                    padding:      '6px 14px',
+                    borderRadius: '7px',
+                    fontSize:     '12px', fontWeight: 600,
+                    cursor:       'pointer', transition: 'all 0.2s',
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(0, 200, 240, 0.14)'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'rgba(0, 200, 240, 0.07)'}
+                >
+                  Detalhes
+                </button>
+                <button
+                  onClick={() => remover(a.id)}
+                  style={{
+                    background:   'transparent',
+                    color:        'var(--text-muted)',
+                    border:       '1px solid var(--border)',
+                    padding:      '6px 14px',
+                    borderRadius: '7px',
+                    fontSize:     '12px',
+                    cursor:       'pointer', transition: 'all 0.2s',
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(244,63,94,0.4)'; e.currentTarget.style.color = 'var(--danger)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-muted)'; }}
+                >
+                  Desativar
+                </button>
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   )
